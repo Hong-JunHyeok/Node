@@ -1,13 +1,31 @@
 const express = require("express");
+const login = require("./router/login");
+const bodyParser = require("body-parser");
+
 const app = express();
-const router = require("./router/main")(app);
-//router에 main을 가져아서 app에 전달해준다는 의미
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+//bodyParser 설정
 
-app.set("views", __dirname + "/views");
-app.set("view engine", "ejs");
-app.engine("html", require("ejs").renderFile);
-
-const server = app.listen(3000, () => {
-    console.log("Express server has started on port 3000");
+app.use((req, res, next) => {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header(
+        "Access-Control-Allow-Headers",
+        "Origin, X-Requested-With, Content-Type, Accept"
+    );
+    next();
 });
-app.use(express.static("public"));
+//access controls allow origin은 cross 도메인 요청을 처리하기 위해 필수적이다.
+
+const router = express.Router();
+
+router.get("/", (req, res) => {
+    res.json({
+        message: "Welcome",
+    });
+});
+
+router.post("/register", login.register);
+router.post("/login", login.login);
+app.use("/api", router);
+app.listen(3000);

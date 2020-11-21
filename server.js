@@ -1,30 +1,13 @@
-const http = require("http");
-const fs = require("fs");
-const url = require("url");
+const express = require("express");
+const app = express();
+const router = require("./router/main")(app);
+//router에 main을 가져아서 app에 전달해준다는 의미
 
-http.createServer((req, res) => {
-    let pathname = url.parse(req.url).pathname;
+app.set("views", __dirname + "/views");
+app.set("view engine", "ejs");
+app.engine("html", require("ejs").renderFile);
 
-    console.log("request for " + pathname + " received");
-
-    //파일이름이 비었다면 index,html로 성정
-    if (pathname === "/") {
-        pathname = "/index.html";
-    }
-
-    // 파일 읽기
-    fs.readFile(pathname.substr(1), (err, data) => {
-        if (err) {
-            console.log(err);
-
-            res.writeHead(404, { "Content-Type": "text/html" });
-        } else {
-            res.writeHead(200, { "Content-Type": "text/html" });
-
-            res.write(data.toString());
-        }
-        res.end();
-    });
-}).listen(8081);
-
-console.log("Server running at http://localhost:8081");
+const server = app.listen(3000, () => {
+    console.log("Express server has started on port 3000");
+});
+app.use(express.static("public"));
